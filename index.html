@@ -1,0 +1,791 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NORCET-11 Placement Desk</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: sticky control rail on the left (students, assumptions), result panels on the right; stacks under 900px.
+   Palette: cool slate paper, ink-blue text, one teal accent. Semantic verdict colours are separate from the accent. */
+:root{
+  --bg:#EEF2F4; --panel:#FFFFFF; --panel2:#F6F9FA; --ink:#14232B; --ink2:#4B5F69; --line:#D3DCE1;
+  --accent:#0B6E78; --accent-ink:#FFFFFF; --accent-soft:#D6EEF0;
+  --ok:#17743C; --ok-bg:#DDF2E3; --warn:#8A5A00; --warn-bg:#FBEBC6; --bad:#A62B2B; --bad-bg:#F8DADA; --mid:#1F5FA8; --mid-bg:#DCE9F8;
+  --q-ur:#14232B; --q-obc:#0B6E78; --q-sc:#C27A1A; --q-st:#7A4CB0; --q-ews:#3F8F5A;
+  --font-d:'Bricolage Grotesque','Segoe UI',system-ui,sans-serif; --font-b:'IBM Plex Sans','Segoe UI',system-ui,sans-serif; --font-m:'IBM Plex Mono',ui-monospace,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0E171C; --panel:#15222A; --panel2:#101B21; --ink:#E6EEF1; --ink2:#9DB1BB; --line:#26373F;
+  --accent:#4FC3CE; --accent-ink:#06262B; --accent-soft:#12383D;
+  --ok:#6AD18E; --ok-bg:#12341F; --warn:#F0C25A; --warn-bg:#3A2D0A; --bad:#F08A8A; --bad-bg:#3C1717; --mid:#8DB8F0; --mid-bg:#14283F;
+  --q-ur:#C9D6DC; --q-obc:#4FC3CE; --q-sc:#E9A94F; --q-st:#B592E3; --q-ews:#74C791; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E171C; --panel:#15222A; --panel2:#101B21; --ink:#E6EEF1; --ink2:#9DB1BB; --line:#26373F;
+  --accent:#4FC3CE; --accent-ink:#06262B; --accent-soft:#12383D;
+  --ok:#6AD18E; --ok-bg:#12341F; --warn:#F0C25A; --warn-bg:#3A2D0A; --bad:#F08A8A; --bad-bg:#3C1717; --mid:#8DB8F0; --mid-bg:#14283F;
+  --q-ur:#C9D6DC; --q-obc:#4FC3CE; --q-sc:#E9A94F; --q-st:#B592E3; --q-ews:#74C791; color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:14px/1.5 var(--font-b);padding-inline:16px;padding-block:18px 40px}
+.wrap{max-width:1280px;margin:0 auto}
+h1,h2,h3{font-family:var(--font-d);margin:0;text-wrap:balance;letter-spacing:-.01em}
+h1{font-size:26px;line-height:1.15}
+h2{font-size:18px}
+h3{font-size:15px}
+.mono,.num{font-family:var(--font-m);font-variant-numeric:tabular-nums}
+.eyebrow{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);font-weight:600}
+header.top{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:flex-end;justify-content:space-between;padding-bottom:14px;border-bottom:1px solid var(--line);margin-bottom:16px}
+header.top .sub{color:var(--ink2);max-width:62ch;margin-top:4px}
+.stats{display:flex;flex-wrap:wrap;gap:8px 22px}
+.stat b{display:block;font:600 20px var(--font-m);font-variant-numeric:tabular-nums}
+.stat span{font-size:11px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em}
+.livebox{display:flex;flex-direction:column;align-items:flex-start;font-size:12px;line-height:1.3;border:1px solid var(--line);border-radius:6px;padding:4px 10px;background:var(--panel)}
+.livebox .dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--ok);margin-right:6px}
+.livebox .dot.off{background:var(--bad)}
+.livebox>span:first-child,.livebox>span:nth-child(2){display:inline}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(16px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:8px;font-weight:600;z-index:10;max-width:90vw}
+.themebtn{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:6px;padding:6px 10px;font:inherit;cursor:pointer}
+.layout{display:grid;grid-template-columns:320px minmax(0,1fr);gap:16px;align-items:start}
+@media(max-width:900px){.layout{grid-template-columns:minmax(0,1fr)}}
+.rail{position:sticky;top:env(safe-area-inset-top,0px);display:flex;flex-direction:column;gap:12px}
+@media(max-width:900px){.rail{position:static}}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;min-width:0}
+.panel + .panel{margin-top:0}
+.stack{display:flex;flex-direction:column;gap:14px;min-width:0}
+label.fld{display:block;font-size:12px;color:var(--ink2);margin:10px 0 4px;font-weight:500}
+input[type=text],select{width:100%;border:1px solid var(--line);background:var(--panel2);color:var(--ink);border-radius:6px;padding:8px 10px;font:inherit}
+input[type=text]{font-family:var(--font-m)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+button{font:inherit;cursor:pointer}
+.btn{background:var(--accent);color:var(--accent-ink);border:0;border-radius:6px;padding:8px 12px;font-weight:600}
+.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.btn.small{padding:4px 8px;font-size:12px}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.chip{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--panel2);border-radius:999px;padding:3px 4px 3px 10px;font:500 12px var(--font-m)}
+.chip button{border:0;background:transparent;color:var(--ink2);padding:0 6px;font-size:14px}
+.hint{font-size:12px;color:var(--ink2)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);flex-wrap:wrap}
+.tab{border:0;background:transparent;color:var(--ink2);padding:9px 14px;font-weight:600;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tab[aria-selected=true]{color:var(--ink);border-bottom-color:var(--accent)}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:14px;min-width:0;display:flex;flex-direction:column;gap:10px}
+.card .head{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.roll{font:500 18px var(--font-m)}
+.facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px}
+.facts div{display:flex;justify-content:space-between;gap:8px;border-bottom:1px dotted var(--line);padding-bottom:3px}
+.facts span{color:var(--ink2)}
+.facts b{font-family:var(--font-m);font-weight:500;font-variant-numeric:tabular-nums}
+.pill{display:inline-block;border-radius:999px;padding:3px 10px;font-weight:600;font-size:12px;white-space:nowrap}
+.pill.safe{background:var(--ok-bg);color:var(--ok)}
+.pill.likely{background:var(--mid-bg);color:var(--mid)}
+.pill.border{background:var(--warn-bg);color:var(--warn)}
+.pill.out{background:var(--bad-bg);color:var(--bad)}
+.pill.none{background:var(--panel2);color:var(--ink2);border:1px solid var(--line)}
+.note{font-size:12px;color:var(--ink2)}
+.scen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.scen div{background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:6px 8px;text-align:center;font-size:12px}
+.scen b{display:block;font-family:var(--font-m);font-size:13px;margin-top:2px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:8px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;min-width:560px}
+th,td{padding:7px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+th:first-child,td:first-child{text-align:left}
+th{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink2);background:var(--panel2);position:sticky;top:0}
+td.n{font-family:var(--font-m);font-variant-numeric:tabular-nums}
+tr.sel td{background:var(--accent-soft)}
+tr.tot td{font-weight:700;background:var(--panel2)}
+.bars{display:flex;flex-direction:column;gap:5px}
+.bar{display:grid;grid-template-columns:170px minmax(0,1fr) 44px;gap:8px;align-items:center;font-size:12px}
+@media(max-width:560px){.bar{grid-template-columns:110px minmax(0,1fr) 36px}}
+.bar .nm{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar .tr{display:flex;height:14px;border-radius:3px;overflow:hidden;background:var(--panel2)}
+.bar .tr i{display:block;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--ink2);margin-bottom:8px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:5px;vertical-align:-1px}
+.pref{display:flex;flex-direction:column;gap:4px;margin-top:8px}
+.pref .it{display:flex;align-items:center;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:4px 6px;font-size:13px}
+.pref .it .ix{font:500 11px var(--font-m);color:var(--ink2);width:22px}
+.pref .it .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pref .it button{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:4px;width:24px;height:24px;padding:0}
+.two{display:grid;grid-template-columns:minmax(0,320px) minmax(0,1fr);gap:14px}
+@media(max-width:1100px){.two{grid-template-columns:minmax(0,1fr)}}
+svg text{fill:var(--ink2);font:11px var(--font-m)}
+.method p,.method li{max-width:75ch}
+.two2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+.big p{font-size:15px;max-width:70ch;margin:8px 0}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:12px}
+.kpi{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.kpi b{display:block;font:600 22px var(--font-m);font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px;color:var(--ink2)}
+.sc{background:var(--panel);border:1px solid var(--line);border-left-width:6px;border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.sc.safe{border-left-color:var(--ok)}.sc.likely{border-left-color:var(--mid)}.sc.border{border-left-color:var(--warn)}.sc.out{border-left-color:var(--bad)}
+.sc h3{font-size:19px}
+.sc .who{font:500 13px var(--font-m);color:var(--ink2)}
+.sc ul{margin:0;padding-left:18px}.sc li{margin:3px 0;max-width:72ch}
+.meter{position:relative;height:44px;margin:6px 0 2px}
+.meter .track{position:absolute;left:0;right:0;top:16px;height:10px;border-radius:5px;background:var(--panel2);border:1px solid var(--line);overflow:hidden}
+.meter .fill{position:absolute;left:0;top:0;bottom:0;opacity:.85}
+.meter .fill.safe{background:var(--ok)}.meter .fill.likely{background:var(--mid)}.meter .fill.border{background:var(--warn)}.meter .fill.out{background:var(--bad)}
+.meter .mk{position:absolute;top:0;font:600 11px var(--font-m);transform:translateX(-50%);white-space:nowrap;color:var(--ink)}
+.meter .mk.cut{top:auto;bottom:0;color:var(--ink2)}
+.meter .ln{position:absolute;top:12px;height:18px;width:2px;background:var(--ink)}
+.todo ol{padding-left:20px;margin:8px 0 0}.todo li{margin:6px 0;max-width:62ch}
+dl.gl{margin:8px 0 0}dl.gl dt{font-weight:600;margin-top:8px}dl.gl dd{margin:2px 0 0;color:var(--ink2);max-width:62ch}
+.copybar{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.probrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.prob{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+.prob b{display:block;font:600 24px var(--font-m);font-variant-numeric:tabular-nums}
+.prob span{font-size:12px;color:var(--ink2)}
+
+.method ul{padding-left:18px}
+.warnbox{background:var(--warn-bg);color:var(--warn);border-radius:6px;padding:8px 10px;font-size:12px}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div>
+    <div class="eyebrow">AIIMS NORCET-11 · Stage-II result notification 287/2026</div>
+    <h1>NORCET-11 Placement Desk</h1>
+    <p class="sub">Add a roll number to see, in plain words, how likely a student is to get a Nursing Officer seat. It compares their rank with the seats advertised for their gender and category. This is an estimate, not an official allocation.</p>
+  </div>
+  <div class="row">
+    <div class="stats" id="topstats"></div>
+    <div class="livebox" aria-live="polite"><span class="dot" id="livedot"></span><span id="livetxt">Live</span><span class="hint" id="livestamp"></span></div>
+    <button class="themebtn" id="themebtn" type="button" aria-label="Switch colour theme">Theme</button>
+  </div>
+</header>
+
+<div class="layout">
+  <aside class="rail">
+    <section class="panel" aria-labelledby="stuh">
+      <h2 id="stuh">Students</h2>
+      <label class="fld" for="rollin">Roll number</label>
+      <div class="row">
+        <input id="rollin" type="text" inputmode="numeric" placeholder="e.g. 4116417" autocomplete="off" style="flex:1;min-width:0">
+        <button class="btn" id="addbtn" type="button">Add</button>
+      </div>
+      <div class="hint" id="rollmsg" role="status" style="margin-top:6px">Paste several roll numbers separated by commas or spaces.</div>
+      <div class="chips" id="chips"></div>
+    </section>
+    <section class="panel" aria-labelledby="assh">
+      <h2 id="assh">Assumptions</h2>
+      <label class="fld" for="share">Female share of seats with no published gender split: <b class="num" id="sharev">80%</b></label>
+      <input id="share" type="range" min="50" max="100" step="5" value="80">
+      <div class="hint">183 seats (NITRD, CIP, SJH, RHTC, ABVIMS/Dr RML) list quota totals only. The 80:20 CIB rule is the default.</div>
+      <label class="fld" style="display:flex;gap:8px;align-items:flex-start;margin-top:14px"><input id="uropen" type="checkbox" checked style="margin-top:3px"><span>OBC, SC and ST candidates can take open (UR) seats on merit. EWS candidates only use EWS seats.</span></label>
+      <label class="fld" for="model">How other candidates choose institutes</label>
+      <select id="model">
+        <option value="spread">Spread at random (neutral)</option>
+        <option value="pop">Everyone follows one popularity order</option>
+        <option value="size">Largest institutes first</option>
+      </select>
+      <label class="fld" for="rule">Open-seat rule (institute view)</label>
+      <select id="rule">
+        <option value="global">Open seats first across all choices, then category seats</option>
+        <option value="choice">Choice by choice: open seat, then category seat, institute by institute</option>
+      </select>
+      <label class="fld" for="listlen">Institutes each other candidate lists: <b class="num" id="listlenv">10</b></label>
+      <input id="listlen" type="range" min="3" max="27" step="1" value="10">
+      <div class="hint">Only used in the institute-level view. Candidates who list fewer institutes leave more seats for others. Real choices open on 30 Oct 2026.</div>
+    </section>
+    <section class="panel note">
+      <b>Data</b><br>Result list: 10,613 candidates. Seats: Annexure-V of Notice 103/2026 plus corrigendum 18.08, Addenda 35, 37 and 38/2026. Vacancies are provisional until the seat position is published on 30 Oct 2026.
+    </section>
+  </aside>
+
+  <main class="stack">
+    <div class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" aria-selected="true" data-tab="ov" id="t-ov">Overview</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="stu" id="t-stu">Details</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="inst" id="t-inst">Institute view</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="seats" id="t-seats">Seat matrix</button>
+      <button class="tab" role="tab" aria-selected="false" data-tab="method" id="t-method">Method</button>
+    </div>
+
+    <section id="p-ov" role="tabpanel" aria-labelledby="t-ov" class="stack">
+      <div class="panel" id="ov-big"></div>
+      <div id="ov-students" class="stack"></div>
+      <div class="two2">
+        <div class="panel" id="ov-todo"></div>
+        <div class="panel" id="ov-gloss"></div>
+      </div>
+    </section>
+
+    <section id="p-stu" role="tabpanel" aria-labelledby="t-stu" class="stack" hidden>
+      <div class="cards" id="cards"></div>
+      <div class="panel" id="rulerbox">
+        <h2>Where the seats run out</h2>
+        <p class="note" id="rulernote"></p>
+        <div id="ruler"></div>
+      </div>
+    </section>
+
+    <section id="p-inst" role="tabpanel" aria-labelledby="t-inst" class="stack" hidden>
+      <div class="panel">
+        <div class="row" style="justify-content:space-between">
+          <h2>Institute-level estimate</h2>
+          <div class="row"><label for="instsel" class="hint">Student</label><select id="instsel" style="width:auto;min-width:150px"></select></div>
+        </div>
+        <p class="note">Every candidate is processed in rank order and takes the first institute on their list that still has an open or category seat for their gender. The selected student's list is editable. Everyone else follows the model chosen on the left. This view is stricter than the aggregate one: a reserved-category candidate whose first choice has no open seat left uses a category seat there, which can use up category seats before lower ranks are reached.</p>
+        <div class="two" style="margin-top:12px">
+          <div>
+            <h3>Preference order</h3>
+            <div class="pref" id="pref"></div>
+            <div class="row" style="margin-top:8px">
+              <select id="addinst" style="flex:1;min-width:0"></select>
+              <button class="btn small" id="addinstbtn" type="button">Add</button>
+            </div>
+            <div class="row" style="margin-top:8px">
+              <button class="btn ghost small" id="prefall" type="button">All institutes</button>
+              <button class="btn ghost small" id="prefclear" type="button">Clear</button>
+            </div>
+          </div>
+          <div style="min-width:0">
+            <div id="instresult" style="margin-bottom:10px"></div>
+            <div class="tablewrap"><table id="insttable"></table></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="p-seats" role="tabpanel" aria-labelledby="t-seats" class="stack" hidden>
+      <div class="panel">
+        <h2>Seats by institute and quota</h2>
+        <div class="legend" id="legend"></div>
+        <div class="bars" id="seatbars"></div>
+      </div>
+      <div class="tablewrap"><table id="seattable"></table></div>
+    </section>
+
+    <section id="p-method" role="tabpanel" aria-labelledby="t-method" class="stack" hidden>
+      <div class="panel method">
+        <h2>How the estimate works</h2>
+        <ul>
+          <li><b>Aggregate view.</b> Qualified candidates are processed in rank order. Within each gender, open (UR) seats go first to the best-ranked candidates, then each reserved quota fills from its own category. The last rank admitted in each pool is the cut-off shown.</li>
+          <li><b>Verdict.</b> Safe means the rank is at least 10% inside the cut-off when only half of the unsplit seats are female. Likely means inside that cut-off by less than 10%. Borderline means inside only when all unsplit seats are female. Outside means beyond every case.</li>
+          <li><b>Institute view.</b> Adds institute choice. Preferences of other candidates are unknown, so they are modelled. Each other candidate lists only the first N institutes of their order. The answer changes with the model and with N, so compare several settings before relying on it.</li>
+          <li><b>PwBD.</b> Seats for persons with benchmark disability sit inside each quota total and are reserved horizontally. They are left out of the open and category pools here, and PwBD candidates compete only for open and category seats.</li>
+        </ul>
+        <h3 style="margin-top:14px">Not modelled</h3>
+        <ul>
+          <li>Eligibility checks at institutes (age, experience, registration, valid OBC-NCL or EWS certificates, NOC).</li>
+          <li>Candidates who do not fill choices or later decline a seat. The notice says there is one round and no waiting list.</li>
+          <li>Seat changes after 30 Oct 2026. Rishikesh is treated as an addition to its earlier seats, Bhopal and Mangalagiri as replaced by Addendum 38.</li>
+        </ul>
+        <h3 style="margin-top:14px">Sources</h3>
+        <ul>
+          <li>Result Notification 287/2026 (09 Oct 2026), qualified list, 228 pages.</li>
+          <li>Notice 103/2026 Annexure-V, Safdarjung corrigendum (18.08.2026), Addenda 35, 37 and 38/2026, and the JIPMER, ESIC, CIP and NITRD annexures.</li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</div>
+</div>
+
+<script>
+/* ---------- data ---------- */
+var CATS=['UR','OBC','SC','ST','EWS'];
+var CAND=[];   /* [roll, catIdx, pwbd, genderIdx(0 F,1 M), pct, rank] sorted by rank */
+var VAC=[];
+var STAMP='';
+var STAMPTXT='';      /* {n:name, split:bool, s:[[f,m,fp,mp,t] x5], g:grand, src} */
+var POP_NAMES=['AIIMS New Delhi','JIPMER Puducherry','Dr RML Hospital (ABVIMS)','AIIMS Rishikesh','AIIMS Patna','AIIMS Bhubaneswar','AIIMS Raipur','AIIMS Bhopal','AIIMS Nagpur','AIIMS Mangalagiri','AIIMS Madurai','AIIMS Rewari','AIIMS Raebareli','AIIMS Gorakhpur','AIIMS Vijaypur Jammu','AIIMS Bilaspur','AIIMS Bathinda','AIIMS Kalyani','AIIMS Deoghar','AIIMS Guwahati','AIIMS Avantipora','ESIC New Delhi','AIIMS-CAPFIMS Maidangarhi','SJH Hospital','RHPT Nazafgarh (RHTC)','NITRD','CIP Ranchi'];
+var QCOL=['--q-ur','--q-obc','--q-sc','--q-st','--q-ews'];
+
+/* ---------- derived ---------- */
+var INST,N,byRoll,idxByName,POP,SIZE,catRank,cgRank,cgN,cN;
+function setup(){
+  INST=VAC.filter(function(v){return v.g>0});
+  N=INST.length;
+  byRoll=new Map();idxByName={};
+  CAND.forEach(function(c,i){byRoll.set(c[0],i)});
+  INST.forEach(function(v,i){idxByName[v.n]=i});
+  POP=POP_NAMES.map(function(n){return idxByName[n]}).filter(function(i){return i!==undefined});
+  INST.forEach(function(v,i){if(POP.indexOf(i)<0)POP.push(i)});
+  SIZE=INST.map(function(v,i){return i}).sort(function(a,b){return INST[b].g-INST[a].g});
+  catRank=new Array(CAND.length);cgRank=new Array(CAND.length);
+  var a={},b={};
+  CAND.forEach(function(c,i){var k=c[1]+'_'+c[3];a[c[1]]=(a[c[1]]||0)+1;b[k]=(b[k]||0)+1;catRank[i]=a[c[1]];cgRank[i]=b[k]});
+  cN=a;cgN=b;
+  CH_CACHE={};ORDC={};
+}
+setup();
+
+/* ---------- state ---------- */
+var S={rolls:[4116417,4194163],sel:4116417,share:80,urOpen:true,model:'spread',listLen:10,rule:'global',prefs:{},tab:'ov'};
+function $(id){return document.getElementById(id)}
+function fmt(n){return n.toLocaleString('en-IN')}
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!==undefined)e.textContent=txt;return e}
+
+/* ---------- aggregate simulation (pooled seats) ---------- */
+function pooledSeats(share){
+  var P=[[0,0,0,0,0],[0,0,0,0,0]];
+  INST.forEach(function(v){for(var c=0;c<5;c++){
+    var f,m;
+    if(v.split){f=v.s[c][0];m=v.s[c][1]}else{var t=v.s[c][4];f=Math.round(share*t);m=t-f}
+    P[0][c]+=f;P[1][c]+=m}});
+  return P;
+}
+function aggregate(share,urOpen){
+  var P=pooledSeats(share),got=new Array(CAND.length),last=[[0,0,0,0,0],[0,0,0,0,0]];
+  for(var i=0;i<CAND.length;i++){
+    var c=CAND[i],g=c[3],k=c[1],pool=P[g];
+    if((k===0||(urOpen&&k!==4))&&pool[0]>0){pool[0]--;got[i]=0;last[g][0]=c[5]}
+    else if(k!==0&&pool[k]>0){pool[k]--;got[i]=k;last[g][k]=c[5]}
+    else got[i]=-1;
+  }
+  return {got:got,last:last,left:P};
+}
+
+/* ---------- institute-level simulation ---------- */
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;var t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function orderFor(model,rank){
+  if(model==='pop')return POP;
+  if(model==='size')return SIZE;
+  var r=rng(rank*2654435761%4294967296),a=POP.slice();
+  for(var i=a.length-1;i>0;i--){var j=Math.floor(r()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}
+  return a;
+}
+function instSim(share,urOpen,model,custom,listLen,rule){
+  var seats=INST.map(function(v){var o=[[0,0,0,0,0],[0,0,0,0,0]];
+    for(var c=0;c<5;c++){var f,m;if(v.split){f=v.s[c][0];m=v.s[c][1]}else{var t=v.s[c][4];f=Math.round(share*t);m=t-f}o[0][c]=f;o[1][c]=m}return o});
+  var last=INST.map(function(){return[[0,0,0,0,0],[0,0,0,0,0]]});
+  var res=new Array(CAND.length);
+  for(var i=0;i<CAND.length;i++){
+    var c=CAND[i],g=c[3],k=c[1],rank=c[5];
+    var ord=custom[rank]||orderFor(model,rank).slice(0,listLen);
+    res[i]=null;
+    var done=false;
+    if(rule==='global'&&k!==0&&k!==4&&urOpen){
+      for(var j0=0;j0<ord.length;j0++){var i0=ord[j0];if(seats[i0][g][0]>0){seats[i0][g][0]--;last[i0][g][0]=rank;res[i]={inst:i0,pool:0,pref:j0};done=true;break}}
+    }
+    for(var j=0;j<ord.length&&!done;j++){
+      var ii=ord[j],s=seats[ii][g];
+      if(rule!=='global'&&(k===0||(urOpen&&k!==4))&&s[0]>0){s[0]--;last[ii][g][0]=rank;res[i]={inst:ii,pool:0,pref:j};break}
+      if(k===0&&s[0]>0){s[0]--;last[ii][g][0]=rank;res[i]={inst:ii,pool:0,pref:j};break}
+      if(k!==0&&s[k]>0){s[k]--;last[ii][g][k]=rank;res[i]={inst:ii,pool:k,pref:j};break}
+    }
+  }
+  return {res:res,last:last,left:seats};
+}
+
+/* ---------- verdict ---------- */
+function verdictFor(i){
+  var c=CAND[i],rank=c[5];
+  var lo=aggregate(0.5,S.urOpen),hi=aggregate(1,S.urOpen),mid=aggregate(S.share/100,S.urOpen);
+  function cut(a){var g=a.got[i];var k=g>=0?g:c[1];var L=a.last[c[3]];return g>=0?L[g]:Math.max(L[0],L[k])}
+  var cl=cut(lo),ch=cut(hi),cm=cut(mid),inLo=lo.got[i]>=0,inHi=hi.got[i]>=0,inMid=mid.got[i]>=0;
+  var label,cls;
+  if(inLo&&rank<=cl*0.9){label='Safe';cls='safe'}
+  else if(inLo){label='Likely, tight';cls='likely'}
+  else if(inHi||inMid){label='Borderline';cls='border'}
+  else{label='Outside seats';cls='out'}
+  return {label:label,cls:cls,cl:cl,ch:ch,cm:cm,inLo:inLo,inMid:inMid,inHi:inHi,pool:mid.got[i],mid:mid};
+}
+
+/* ---------- rendering: students ---------- */
+function renderTop(){
+  var seats=INST.reduce(function(a,v){return a+v.g},0);
+  var t=$('topstats');t.textContent='';
+  [[fmt(CAND.length),'Qualified'],[fmt(seats),'Seats advertised'],[INST.length,'Institutes']].forEach(function(p){
+    var d=el('div','stat');d.appendChild(el('b',null,p[0]));d.appendChild(el('span',null,p[1]));t.appendChild(d)});
+}
+function renderChips(){
+  var box=$('chips');box.textContent='';
+  S.rolls.forEach(function(r){
+    var c=el('span','chip');c.appendChild(document.createTextNode(String(r)));
+    var b=el('button',null,'×');b.type='button';b.setAttribute('aria-label','Remove '+r);
+    b.onclick=function(){S.rolls=S.rolls.filter(function(x){return x!==r});if(S.sel===r)S.sel=S.rolls[0]||null;renderAll()};
+    c.appendChild(b);box.appendChild(c)});
+}
+function fact(box,k,v){var d=el('div');d.appendChild(el('span',null,k));d.appendChild(el('b',null,v));box.appendChild(d)}
+function renderCards(){
+  var box=$('cards');box.textContent='';
+  if(!S.rolls.length){var e=el('div','card');e.appendChild(el('b',null,'No students yet'));e.appendChild(el('span','note','Add a roll number on the left. Example: 4116417.'));box.appendChild(e);return}
+  S.rolls.forEach(function(r){
+    var i=byRoll.get(r),card=el('div','card');
+    if(i===undefined){card.appendChild(el('div','roll',String(r)));card.appendChild(el('span','pill none','Not in qualified list'));
+      card.appendChild(el('p','note','This roll number is not among the 10,613 candidates who qualified in Stage-II, so it has no rank and no placement.'));box.appendChild(card);return}
+    var c=CAND[i],v=verdictFor(i);
+    var head=el('div','head');head.appendChild(el('div','roll',String(r)));
+    var pill=el('span','pill '+v.cls,v.label);head.appendChild(pill);card.appendChild(head);
+    var f=el('div','facts');
+    fact(f,'Category',CATS[c[1]]+(c[2]?' · PwBD':''));fact(f,'Gender',c[3]?'Male':'Female');
+    fact(f,'Percentage',c[4].toFixed(3));fact(f,'Overall rank',fmt(c[5]));
+    fact(f,'Rank in '+CATS[c[1]],fmt(catRank[i])+' / '+fmt(cN[c[1]]));
+    fact(f,(c[3]?'Male':'Female')+' in '+CATS[c[1]],fmt(cgRank[i])+' / '+fmt(cgN[c[1]+'_'+c[3]]));
+    card.appendChild(f);
+    var lines=el('p','note');
+    var gname=c[3]?'male':'female';
+    var gp=v.mid.last[c[3]];
+    var txt='';
+    if(v.pool===0)txt='Gets an open (UR) '+gname+' seat on merit. Last open-seat rank is '+fmt(gp[0])+'.';
+    else if(v.pool>0)txt='Gets a '+CATS[v.pool]+' '+gname+' seat. Last '+CATS[v.pool]+' '+gname+' seat goes to rank '+fmt(gp[v.pool])+', so there are '+fmt(gp[v.pool]-c[5])+' ranks of room.';
+    else txt='Misses the last '+gname+' seat in the pools open to '+CATS[c[1]]+': seats run out at rank '+fmt(c[1]!==4&&S.urOpen?Math.max(gp[0],gp[c[1]]):gp[c[1]])+'.';
+    lines.textContent=txt;card.appendChild(lines);
+    var sc=el('div','scen');
+    [['Half of unsplit seats female',v.inLo?'Seat':'No seat',v.cl],['Your setting ('+S.share+'%)',v.inMid?'Seat':'No seat',v.cm],['All unsplit seats female',v.inHi?'Seat':'No seat',v.ch]].forEach(function(p){
+      var d=el('div');d.appendChild(document.createTextNode(p[0]));d.appendChild(el('b',null,p[1]+' · '+fmt(p[2])));sc.appendChild(d)});
+    card.appendChild(sc);
+    if(c[2])card.appendChild(el('div','warnbox','PwBD candidate. PwBD seats are not modelled here, so this shows open and category seats only.'));
+    var b=el('button','btn ghost small','Open institute view');b.type='button';b.onclick=function(){S.sel=r;setTab('inst');renderAll()};
+    card.appendChild(b);box.appendChild(card);
+  });
+}
+function svgEl(n,a){var e=document.createElementNS('http://www.w3.org/2000/svg',n);for(var k in a)e.setAttribute(k,a[k]);return e}
+function renderRuler(){
+  var box=$('ruler');box.textContent='';
+  var i=S.sel!==null?byRoll.get(S.sel):undefined;
+  var g=i!==undefined?CAND[i][3]:0;
+  var a=aggregate(S.share/100,S.urOpen);
+  $('rulernote').textContent='Last rank that gets a '+(g?'male':'female')+' seat in each pool, at '+S.share+'% female for unsplit seats. '+(i!==undefined?'Triangle marks '+S.sel+'.':'Select a student to see their position.');
+  var W=720,H=150,L=14,R=14,max=Math.max.apply(null,a.last[g])*1.08||1000;
+  function x(v){return L+(W-L-R)*v/max}
+  var s=svgEl('svg',{viewBox:'0 0 '+W+' '+H,width:'100%',role:'img','aria-label':'Cut-off ranks by quota'});
+  s.appendChild(svgEl('line',{x1:L,x2:W-R,y1:78,y2:78,stroke:'var(--line)','stroke-width':2}));
+  var step=max>6000?1000:500;
+  for(var t=0;t<=max;t+=step){s.appendChild(svgEl('line',{x1:x(t),x2:x(t),y1:74,y2:82,stroke:'var(--line)'}));
+    var tx=svgEl('text',{x:x(t),y:98,'text-anchor':'middle'});tx.textContent=fmt(t);s.appendChild(tx)}
+  var order=[0,4,1,2,3],used=[];
+  order.forEach(function(k,idx){
+    var v=a.last[g][k];if(!v)return;
+    var yy=idx%2?64:46;
+    s.appendChild(svgEl('rect',{x:L,y:72,width:Math.max(0,x(v)-L),height:12,fill:'var('+QCOL[k]+')',opacity:0.18}));
+    s.appendChild(svgEl('line',{x1:x(v),x2:x(v),y1:yy+4,y2:84,stroke:'var('+QCOL[k]+')','stroke-width':2}));
+    var tt=svgEl('text',{x:x(v),y:yy,'text-anchor':'middle'});tt.textContent=CATS[k]+' '+fmt(v);tt.style.fill='var('+QCOL[k]+')';tt.style.fontWeight='600';s.appendChild(tt);
+  });
+  S.rolls.forEach(function(r){var j=byRoll.get(r);if(j===undefined||CAND[j][3]!==g)return;var rk=CAND[j][5];
+    if(rk>max)return;
+    var sel=r===S.sel;
+    s.appendChild(svgEl('path',{d:'M'+x(rk)+' 112 l-6 10 h12 z',fill:sel?'var(--accent)':'var(--ink2)'}));
+    if(sel){var lb=svgEl('text',{x:x(rk),y:H-2,'text-anchor':'middle'});lb.textContent=String(r)+' · '+fmt(rk);lb.style.fill='var(--accent)';lb.style.fontWeight='600';s.appendChild(lb)}});
+  box.appendChild(s);
+}
+
+/* ---------- rendering: institute view ---------- */
+function prefOf(r){if(!S.prefs[r])S.prefs[r]=POP.slice();return S.prefs[r]}
+function customMap(){var m={};S.rolls.forEach(function(r){var i=byRoll.get(r);if(i!==undefined&&S.prefs[r])m[CAND[i][5]]=S.prefs[r]});return m}
+function renderInst(){
+  var sel=$('instsel');sel.textContent='';
+  S.rolls.filter(function(r){return byRoll.has(r)}).forEach(function(r){var o=el('option',null,String(r));o.value=r;if(r===S.sel)o.selected=true;sel.appendChild(o)});
+  var r=S.sel,i=r!==null&&r!==undefined?byRoll.get(r):undefined;
+  var pref=$('pref'),tbl=$('insttable'),out=$('instresult');pref.textContent='';tbl.textContent='';out.textContent='';
+  var add=$('addinst');add.textContent='';
+  if(i===undefined){out.appendChild(el('p','note','Add a qualified roll number to see the institute view.'));return}
+  var list=prefOf(r),c=CAND[i],g=c[3],k=c[1];
+  list.forEach(function(ii,pos){
+    var it=el('div','it');it.appendChild(el('span','ix',String(pos+1)));it.appendChild(el('span','nm',INST[ii].n));
+    function b(t,fn,lab,dis){var x=el('button',null,t);x.type='button';x.setAttribute('aria-label',lab+' '+INST[ii].n);x.disabled=!!dis;x.onclick=fn;it.appendChild(x)}
+    b('▲',function(){if(pos>0){var t=list[pos-1];list[pos-1]=list[pos];list[pos]=t;renderAll()}},'Move up',pos===0);
+    b('▼',function(){if(pos<list.length-1){var t=list[pos+1];list[pos+1]=list[pos];list[pos]=t;renderAll()}},'Move down',pos===list.length-1);
+    b('×',function(){list.splice(pos,1);renderAll()},'Remove');
+    pref.appendChild(it)});
+  if(!list.length)pref.appendChild(el('p','note','No institutes listed. This student gets no seat until at least one is added.'));
+  var rest=INST.map(function(v,ii){return ii}).filter(function(ii){return list.indexOf(ii)<0});
+  rest.forEach(function(ii){var o=el('option',null,INST[ii].n+' ('+INST[ii].g+')');o.value=ii;add.appendChild(o)});
+  $('addinstbtn').disabled=!rest.length;
+  var sim=instSim(S.share/100,S.urOpen,S.model,customMap(),S.listLen,S.rule);
+  var mine=sim.res[i];
+  if(mine){
+    var p=el('span','pill '+(mine.pref===0?'safe':'likely'),'Allotted');
+    out.appendChild(p);
+    out.appendChild(document.createTextNode(' '+INST[mine.inst].n+', '+(mine.pool===0?'open (UR)':CATS[mine.pool])+' '+(g?'male':'female')+' seat, preference #'+(mine.pref+1)+' of '+list.length+'.'));
+  }else{
+    out.appendChild(el('span','pill out','No seat'));
+    out.appendChild(document.createTextNode(' Every institute on the list ran out of '+(g?'male':'female')+' seats open to '+CATS[k]+' before rank '+fmt(c[5])+'.'));
+  }
+  var hd=el('tr');['Institute','Open seats','Category seats','Last open rank','Last category rank','Result'].forEach(function(t){hd.appendChild(el('th',null,t))});
+  var th=el('thead');th.appendChild(hd);tbl.appendChild(th);
+  var tb=el('tbody');
+  list.forEach(function(ii,pos){
+    var v=INST[ii],tr=el('tr'),seatsO,seatsC;
+    function sc(cc){return v.split?v.s[cc][g]:(g?v.s[cc][4]-Math.round(S.share/100*v.s[cc][4]):Math.round(S.share/100*v.s[cc][4]))}
+    seatsO=sc(0);seatsC=k===0?seatsO:sc(k);
+    var lastO=sim.last[ii][g][0],lastC=k===0?lastO:sim.last[ii][g][k];
+    var leftO=sim.left[ii][g][0],leftC=k===0?leftO:sim.left[ii][g][k];
+    var res=mine&&mine.inst===ii?'Allotted':(mine&&pos>mine.pref?'Not reached':'Seats gone');
+    tr.appendChild(el('td',null,(pos+1)+'. '+v.n));
+    [seatsO,k===0?'same':seatsC].forEach(function(x){tr.appendChild(el('td','n',String(x)))});
+    tr.appendChild(el('td','n',leftO>0?'open ('+leftO+' left)':(lastO?fmt(lastO):'0 seats')));
+    tr.appendChild(el('td','n',k===0?'same':(leftC>0?'open ('+leftC+' left)':(lastC?fmt(lastC):'0 seats'))));
+    var rt=el('td',null);rt.appendChild(el('span','pill '+(res==='Allotted'?'safe':(res==='Seats gone'?'out':'none')),res));tr.appendChild(rt);
+    if(res==='Allotted')tr.className='sel';
+    tb.appendChild(tr)});
+  tbl.appendChild(tb);
+}
+
+/* ---------- rendering: seats ---------- */
+function renderSeats(){
+  var lg=$('legend');lg.textContent='';
+  CATS.forEach(function(c,k){var s=el('span');var i=el('i');i.style.background='var('+QCOL[k]+')';s.appendChild(i);s.appendChild(document.createTextNode(c));lg.appendChild(s)});
+  var bars=$('seatbars');bars.textContent='';
+  var max=Math.max.apply(null,INST.map(function(v){return v.g}));
+  INST.slice().sort(function(a,b){return b.g-a.g}).forEach(function(v){
+    var row=el('div','bar');row.appendChild(el('span','nm',v.n));
+    var tr=el('div','tr');tr.style.width='100%';
+    var inner=el('div','tr');inner.style.width=(100*v.g/max)+'%';
+    v.s.forEach(function(q,k){var seg=el('i');seg.style.width=(100*q[4]/Math.max(1,v.g))+'%';seg.style.background='var('+QCOL[k]+')';seg.title=CATS[k]+' '+q[4];inner.appendChild(seg)});
+    tr.appendChild(inner);tr.style.background='transparent';row.appendChild(tr);row.appendChild(el('span','num',String(v.g)));bars.appendChild(row)});
+  var t=$('seattable');t.textContent='';
+  var h=el('tr');['Institute'].concat(CATS,['Total','Female','Male','Gender split']).forEach(function(x){h.appendChild(el('th',null,x))});
+  var th=el('thead');th.appendChild(h);t.appendChild(th);
+  var tb=el('tbody'),tot=[0,0,0,0,0,0,0,0];
+  INST.forEach(function(v){
+    var tr=el('tr');tr.appendChild(el('td',null,v.n));
+    var f=0,m=0;
+    v.s.forEach(function(q,k){tr.appendChild(el('td','n',String(q[4])));tot[k]+=q[4];if(v.split){f+=q[0]+q[2];m+=q[1]+q[3]}});
+    tr.appendChild(el('td','n',String(v.g)));tot[5]+=v.g;
+    tr.appendChild(el('td','n',v.split?String(f):'n/a'));tr.appendChild(el('td','n',v.split?String(m):'n/a'));
+    if(v.split){tot[6]+=f;tot[7]+=m}
+    tr.appendChild(el('td',null,v.split?'published':'quota totals only'));tb.appendChild(tr)});
+  var tr=el('tr','tot');tr.appendChild(el('td',null,'Total'));
+  tot.slice(0,6).forEach(function(x){tr.appendChild(el('td','n',fmt(x)))});
+  tr.appendChild(el('td','n',fmt(tot[6])));tr.appendChild(el('td','n',fmt(tot[7])));tr.appendChild(el('td',null,'PwBD included'));
+  tb.appendChild(tr);t.appendChild(tb);
+}
+
+/* ---------- overview: plain-language summary ---------- */
+var PLAIN={safe:'Very likely to get a seat',likely:'Likely to get a seat, but it is close',border:'Could go either way',out:'Unlikely to get a seat in this round'};
+function pctTxt(n){return Math.round(n*100)+'%'}
+function poolSeats(g,k){return pooledSeats(S.share/100)[g][k]}
+function bigPicture(){
+  var seats=INST.reduce(function(a,v){return a+v.g},0),P=pooledSeats(S.share/100);
+  var fs=P[0].reduce(function(a,b){return a+b},0),ms=P[1].reduce(function(a,b){return a+b},0);
+  var fq=0,mq=0;CAND.forEach(function(c){if(c[3])mq++;else fq++});
+  var box=$('ov-big');box.textContent='';box.className='panel big';
+  box.appendChild(el('div','eyebrow','The big picture'));
+  box.appendChild(el('h2',null,fmt(CAND.length)+' people qualified for '+fmt(seats)+' seats'));
+  box.appendChild(el('p',null,'Qualifying in Stage-II does not mean a job. Only about '+Math.round(100*seats/CAND.length)+' in every 100 qualified candidates will be allotted a Nursing Officer seat. Seats are given strictly in rank order, once, based on the institutes each candidate chooses.'));
+  box.appendChild(el('p',null,'About 8 in 10 seats are kept for women, so women are compared with women and men with men. '+fmt(fq)+' women compete for about '+fmt(fs)+' seats (roughly '+(fq/fs).toFixed(1)+' candidates for each seat). '+fmt(mq)+' men compete for about '+fmt(ms)+' seats (roughly '+(mq/ms).toFixed(1)+' candidates for each seat). These counts leave out seats reserved for candidates with benchmark disability.'));
+  var k=el('div','kpis');
+  [[fmt(CAND.length),'qualified candidates'],[fmt(seats),'seats advertised (provisional)'],[String(INST.length),'institutes taking part'],['1 round','no waiting list']].forEach(function(p){var d=el('div','kpi');d.appendChild(el('b',null,p[0]));d.appendChild(el('span',null,p[1]));k.appendChild(d)});
+  box.appendChild(k);
+}
+/* ---- chance of a seat: many modelled scenarios, availability at the student's turn ---- */
+var SCEN=null,ORDC={},CH_CACHE={};
+function scenList(){
+  if(SCEN)return SCEN;SCEN=[];
+  [0.5,0.8,1].forEach(function(sh){[['spread',1],['spread',2],['spread',3],['pop',0],['size',0]].forEach(function(m){[5,10,15,27].forEach(function(L){['global','choice'].forEach(function(rule){SCEN.push({sh:sh,model:m[0],salt:m[1],L:L,rule:rule})})})})});
+  return SCEN;
+}
+function ordOf(sc,idx){
+  if(sc.model==='pop')return POP.slice(0,sc.L);
+  if(sc.model==='size')return SIZE.slice(0,sc.L);
+  var key=sc.salt+'_'+CAND.length+'_'+INST.length;
+  if(!ORDC[key])ORDC[key]=new Array(CAND.length);
+  var o=ORDC[key][idx];
+  if(!o){var r=rng((CAND[idx][5]*2654435761+sc.salt*97531)>>>0),a=POP.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(r()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}o=ORDC[key][idx]=a}
+  return o.slice(0,sc.L);
+}
+function seatsAtTurn(stop,sc,urOpen){
+  var seats=INST.map(function(v){var o=[[0,0,0,0,0],[0,0,0,0,0]];for(var c=0;c<5;c++){var f,m;if(v.split){f=v.s[c][0];m=v.s[c][1]}else{var t=v.s[c][4];f=Math.round(sc.sh*t);m=t-f}o[0][c]=f;o[1][c]=m}return o});
+  for(var i=0;i<stop;i++){
+    var c=CAND[i],g=c[3],k=c[1],ord=ordOf(sc,i),done=false;
+    if(sc.rule==='global'&&k!==0&&k!==4&&urOpen){for(var a=0;a<ord.length;a++){var s0=seats[ord[a]][g];if(s0[0]>0){s0[0]--;done=true;break}}}
+    for(var j=0;j<ord.length&&!done;j++){
+      var s=seats[ord[j]][g];
+      if(sc.rule!=='global'&&(k===0||(urOpen&&k!==4))&&s[0]>0){s[0]--;break}
+      if(k===0&&s[0]>0){s[0]--;break}
+      if(k!==0&&s[k]>0){s[k]--;break}
+    }
+  }
+  return seats;
+}
+function chances(i){
+  var key=CAND[i][0]+'_'+S.urOpen+'_'+CAND.length+'_'+INST.length;
+  if(CH_CACHE[key])return CH_CACHE[key];
+  var c=CAND[i],g=c[3],k=c[1],sc=scenList(),n=sc.length;
+  var cnt=INST.map(function(){return 0}),any=0,cover=[];
+  sc.forEach(function(s,si){
+    var seats=seatsAtTurn(i,s,S.urOpen),av=INST.map(function(v,x){var p=seats[x][g];return ((k===0||(S.urOpen&&k!==4))&&p[0]>0)||(k!==0&&p[k]>0)});
+    cover.push(av);var a=false;av.forEach(function(b,x){if(b){cnt[x]++;a=true}});if(a)any++;
+  });
+  var rows=INST.map(function(v,x){return {x:x,name:v.n,p:cnt[x]/n}}).filter(function(r){return r.p>0}).sort(function(a,b){return b.p-a.p||INST[b.x].g-INST[a.x].g});
+  /* smallest list of institutes that leaves a seat in as many scenarios as possible */
+  var chosen=[],covered=new Array(n).fill(false),have=0;
+  while(have<n&&chosen.length<8){
+    var best=-1,gain=0;
+    INST.forEach(function(v,x){if(chosen.indexOf(x)>=0)return;var gnn=0;for(var s=0;s<n;s++)if(!covered[s]&&cover[s][x])gnn++;if(gnn>gain){gain=gnn;best=x}});
+    if(best<0)break;chosen.push(best);for(var s=0;s<n;s++)if(!covered[s]&&cover[s][best]){covered[s]=true;have++}
+  }
+  var out={pAny:any/n,rows:rows,backup:chosen,backupP:have/n,n:n,safe:rows.filter(function(r){return r.p>=0.98}).map(function(r){return r.x})};
+  CH_CACHE[key]=out;return out;
+}
+function band(p){return p>=0.98?'Near-certain':p>=0.8?'Good':p>=0.4?'Risky':'Unlikely'}
+function studentSummary(r){
+  var i=byRoll.get(r);
+  if(i===undefined)return {roll:r,cls:'out',head:'Not on the qualified list',lines:['Roll number '+r+' is not among the '+fmt(CAND.length)+' candidates who qualified in Stage-II, so it has no rank and cannot be allotted a seat.'],text:'Roll '+r+': not on the qualified list.',tips:[]};
+  var c=CAND[i],v=verdictFor(i),g=c[3],gn=g?'men':'women',cat=CATS[c[1]];
+  var lines=[],gp=v.mid.last[g];
+  lines.push('Rank '+fmt(c[5])+' out of '+fmt(CAND.length)+' overall. Among '+cat+' '+gn+' the student is number '+fmt(cgRank[i])+' of '+fmt(cgN[c[1]+'_'+g])+'.');
+  if(v.pool===0)lines.push('Open seats (not tied to any category) for '+gn+' run down to about rank '+fmt(gp[0])+'. The student is inside that line, so a seat comes on merit and does not use a '+cat+' seat.');
+  else if(v.pool>0){var room=gp[v.pool]-c[5];lines.push('There are about '+fmt(poolSeats(g,v.pool))+' '+cat+' seats for '+gn+' across all institutes. The last one goes to about rank '+fmt(gp[v.pool])+', so the student is inside the line with about '+fmt(room)+' ranks to spare ('+pctTxt(room/gp[v.pool])+' of the cut-off).')}
+  else lines.push('Seats for '+cat+' '+gn+' run out at about rank '+fmt(c[1]!==4&&S.urOpen?Math.max(gp[0],gp[c[1]]):gp[c[1]])+'. The student is beyond that line, so a seat is unlikely unless extra seats are added or others decline.');
+  if(v.cls==='likely'||v.cls==='border')lines.push('This depends on things not known yet: how many of the seats without a published gender split go to women, and which institutes others choose. Treat it as a good chance, not a promise.');
+  var sim=instSim(S.share/100,S.urOpen,S.model,customMap(),S.listLen,S.rule),m=sim.res[i];
+  if(m)lines.push('In a trial run where other candidates pick institutes at random, this student would be placed at '+INST[m.inst].n+' (choice number '+(m.pref+1)+').');
+  else lines.push('In a trial run where other candidates pick institutes at random, this student did not get a seat with the current preference list. Adding more institutes helps.');
+  var ch=chances(i);
+  lines.push('Chance of a seat somewhere: about '+Math.round(ch.pAny*100)+'% (share of '+ch.n+' modelled situations in which at least one institute still has a seat for this student at their turn, if every institute is listed).');
+  if(ch.safe.length){
+    var sn=ch.safe.slice(0,8).map(function(x){return INST[x].n});
+    lines.push('Institutes with a seat for this student in at least 98% of modelled situations: '+sn.join(', ')+(ch.safe.length>8?' and '+(ch.safe.length-8)+' more':'')+'. Keeping any one of them on the list makes a seat almost certain. This is not a guarantee, because real choices are unknown.');
+  }else if(ch.backup.length){
+    var names=ch.backup.map(function(x){return INST[x].n});
+    lines.push('No single institute is close to certain for this student. Keeping '+names.join(' and ')+' on the list gives a seat in '+Math.round(ch.backupP*100)+'% of modelled situations, which is the best any list can do in this model. The remaining '+Math.round((1-ch.backupP)*100)+'% is real risk of no seat.');
+  }else lines.push('No institute is modelled to have a seat left for this student, so a seat is very unlikely.');
+  var tips=[];
+  if(v.cls==='out'||v.cls==='border')tips.push('Fill in every institute the student would be willing to join, including the smaller and less popular ones. Seats there run out at lower ranks.');
+  else tips.push('Still fill in all institutes the student would accept. Only the choices filled are considered.');
+  if(c[1]!==0)tips.push('Keep a valid '+cat+' certificate ready'+(c[1]===1?' (OBC non-creamy layer, issued on or after 1 April 2026).':c[1]===4?' (EWS, issued on or after 1 April 2026).':' (in the prescribed central government format).'));
+  var text='Roll '+r+' ('+cat+(c[2]?', PwBD':'')+', '+(g?'male':'female')+', rank '+fmt(c[5])+'): '+PLAIN[v.cls]+'. '+lines.join(' ')+' '+tips.join(' ');
+  return {roll:r,cls:v.cls,head:PLAIN[v.cls],c:c,v:v,ch:ch,lines:lines,tips:tips,text:text,cut:v.cm,rank:c[5]};
+}
+function meter(s){
+  var m=el('div','meter'),max=Math.max(s.cut,s.rank)*1.12||1;
+  var tr=el('div','track'),f=el('div','fill '+s.cls);f.style.width=Math.min(100,100*s.rank/max)+'%';tr.appendChild(f);m.appendChild(tr);
+  var l1=el('div','ln');l1.style.left=(100*s.cut/max)+'%';m.appendChild(l1);
+  var a=el('div','mk','Student: rank '+fmt(s.rank));a.style.left=Math.min(88,Math.max(12,100*s.rank/max))+'%';m.appendChild(a);
+  var b=el('div','mk cut','Last seat: about '+fmt(s.cut));b.style.left=Math.min(86,Math.max(14,100*s.cut/max))+'%';m.appendChild(b);
+  return m;
+}
+function renderOverview(){
+  bigPicture();
+  var box=$('ov-students');box.textContent='';
+  var all=[];
+  var hd=el('div','copybar');hd.appendChild(el('h2',null,'Your students'));
+  var cb=el('button','btn ghost small','Copy written summary');cb.type='button';hd.appendChild(cb);
+  var cm=el('span','hint');cm.setAttribute('role','status');hd.appendChild(cm);box.appendChild(hd);
+  if(!S.rolls.length)box.appendChild(el('div','panel','Add a roll number on the left to see a plain-language summary.'));
+  S.rolls.forEach(function(r){
+    var s=studentSummary(r);all.push(s.text);
+    var card=el('div','sc '+s.cls);
+    card.appendChild(el('div','who','Roll '+r+(s.c?' · '+CATS[s.c[1]]+(s.c[2]?' (PwBD)':'')+' · '+(s.c[3]?'Male':'Female')+' · '+s.c[4].toFixed(3)+'%':'')));
+    card.appendChild(el('h3',null,s.head));
+    if(s.c)card.appendChild(meter(s));
+    if(s.ch){
+      var pr=el('div','probrow');
+      var pb=el('div','prob');pb.appendChild(el('b',null,Math.round(s.ch.pAny*100)+'%'));pb.appendChild(el('span',null,'chance of a seat somewhere if every institute is listed'));pr.appendChild(pb);
+      var bk=el('div','prob');bk.appendChild(el('b',null,s.ch.safe.length?String(s.ch.safe.length):(s.ch.backup.length?Math.round(s.ch.backupP*100)+'%':'0')));bk.appendChild(el('span',null,s.ch.safe.length?'institutes are near-certain (98% or more). Keep at least one on the list.':(s.ch.backup.length?'is the best coverage any list gets for this student':'no institute has a seat left in the model')));pr.appendChild(bk);
+      card.appendChild(pr);
+      var tw=el('div','tablewrap'),tb=el('table');tb.style.minWidth='420px';
+      var hr=el('tr');['Institute','Chance of a seat there','How safe'].forEach(function(x){hr.appendChild(el('th',null,x))});var th=el('thead');th.appendChild(hr);tb.appendChild(th);
+      var tbd=el('tbody');
+      s.ch.rows.slice(0,14).forEach(function(rw){var tr=el('tr');var star=s.ch.safe.length?rw.p>=0.98:s.ch.backup.indexOf(rw.x)>=0;tr.appendChild(el('td',null,rw.name+(star?'  ★ safe pick':'')));tr.appendChild(el('td','n',Math.round(rw.p*100)+'%'));var b=band(rw.p),td=el('td');td.appendChild(el('span','pill '+(b==='Near-certain'?'safe':b==='Good'?'likely':b==='Risky'?'border':'out'),b));tr.appendChild(td);if(star)tr.className='sel';tbd.appendChild(tr)});
+      if(!s.ch.rows.length){var tr0=el('tr'),td0=el('td',null,'No institute is modelled to have a seat left for this student.');td0.colSpan=3;tr0.appendChild(td0);tbd.appendChild(tr0)}
+      tb.appendChild(tbd);tw.appendChild(tb);card.appendChild(tw);
+      card.appendChild(el('div','note','The chance at each institute is the share of modelled situations in which that institute still has a seat for this student when their turn comes. Order of preference does not change it. Put preferred institutes first and add the starred ones as safety picks.'));
+    }
+    var ul=el('ul');s.lines.forEach(function(x){ul.appendChild(el('li',null,x))});card.appendChild(ul);
+    if(s.tips&&s.tips.length){var t=el('div','note');t.appendChild(el('b',null,'What to do: '));t.appendChild(document.createTextNode(s.tips.join(' ')));card.appendChild(t)}
+    if(s.c){var more=el('button','btn ghost small','See institute-by-institute view');more.type='button';more.style.alignSelf='flex-start';more.onclick=function(){S.sel=r;setTab('inst');renderAll()};card.appendChild(more)}
+    box.appendChild(card)});
+  cb.onclick=function(){
+    var txt='NORCET-11 placement summary ('+new Date().toLocaleDateString('en-IN')+')\n\n'+all.join('\n\n')+'\n\nEstimate only. Seats and choices are not final until 30 Oct 2026.';
+    function done(ok){cm.textContent=ok?'Copied.':'Copy was blocked by the browser. Select the text and copy it manually.'}
+    if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(txt).then(function(){done(true)},function(){done(false)});else done(false);
+  };
+  var td=$('ov-todo');td.textContent='';td.className='panel todo';
+  td.appendChild(el('h2',null,'What happens next'));
+  var ol=el('ol');
+  ['30 Oct 2026: AIIMS publishes the final seat numbers and the choice-filling procedure.','30 Oct to 6 Nov 2026 (until 5:00 PM): candidates fill in their institute choices online at aiimsexams.ac.in.','There is one round and no waiting list. A candidate who is allotted a seat must join it, or the candidature for this NORCET is cancelled. List only institutes the student will actually join.','An institute left out of the choices is not considered for that student at all.','After allotment, each institute checks documents: category certificate, qualification, nursing council registration, experience (diploma holders need 2 years), no-objection certificate for government employees, and age.'].forEach(function(x){ol.appendChild(el('li',null,x))});
+  td.appendChild(ol);
+  var gl=$('ov-gloss');gl.textContent='';gl.className='panel';
+  gl.appendChild(el('h2',null,'Words used here'));
+  var dl=el('dl','gl');
+  [['Rank','Position in the merit list of all qualified candidates. Rank 1 is the best score.'],['Open seats (UR)','Seats not reserved for any category. They go to the best-ranked candidates of any category except EWS.'],['OBC, SC, ST, EWS','Reserved categories. Each has its own seats, filled by rank within the category.'],['PwBD','Persons with benchmark disability. Their seats are counted inside each category total.'],['Last seat','The rank at which the final seat in a group is filled. A smaller rank number than this is inside the line.']].forEach(function(p){dl.appendChild(el('dt',null,p[0]));dl.appendChild(el('dd',null,p[1]))});
+  gl.appendChild(dl);
+}
+
+/* ---------- wiring ---------- */
+function setTab(t){S.tab=t;['ov','stu','inst','seats','method'].forEach(function(k){$('p-'+k).hidden=k!==t;$('t-'+k).setAttribute('aria-selected',k===t?'true':'false')})}
+function renderAll(){renderChips();renderOverview();renderCards();renderRuler();renderInst();renderSeats();$('sharev').textContent=S.share+'%';$('listlenv').textContent=S.listLen}
+function addRolls(txt){
+  var parts=txt.split(/[^0-9]+/).filter(Boolean),added=0,bad=[];
+  parts.forEach(function(p){var r=parseInt(p,10);if(p.length!==7){bad.push(p);return}if(S.rolls.indexOf(r)<0){S.rolls.push(r);added++}if(!S.sel)S.sel=r});
+  var m=$('rollmsg');
+  if(bad.length)m.textContent='Roll numbers have 7 digits. Skipped: '+bad.join(', ');
+  else if(!parts.length)m.textContent='Type a 7-digit roll number.';
+  else m.textContent=added?('Added '+added+'.'):'Already on the list.';
+  $('rollin').value='';renderAll();
+}
+$('addbtn').onclick=function(){addRolls($('rollin').value)};
+$('rollin').addEventListener('keydown',function(e){if(e.key==='Enter'){e.preventDefault();addRolls($('rollin').value)}});
+$('share').oninput=function(){S.share=+this.value;renderAll()};
+$('uropen').onchange=function(){S.urOpen=this.checked;renderAll()};
+$('model').onchange=function(){S.model=this.value;renderAll()};
+$('rule').onchange=function(){S.rule=this.value;renderAll()};
+$('listlen').oninput=function(){S.listLen=+this.value;renderAll()};
+$('instsel').onchange=function(){S.sel=+this.value;renderAll()};
+$('addinstbtn').onclick=function(){var v=+$('addinst').value;if(S.sel!==null&&!isNaN(v)){prefOf(S.sel).push(v);renderAll()}};
+$('prefall').onclick=function(){if(S.sel!==null){S.prefs[S.sel]=POP.slice();renderAll()}};
+$('prefclear').onclick=function(){if(S.sel!==null){S.prefs[S.sel]=[];renderAll()}};
+Array.prototype.forEach.call(document.querySelectorAll('.tab'),function(b){b.onclick=function(){setTab(b.dataset.tab);renderAll()}});
+$('themebtn').onclick=function(){var d=document.documentElement,cur=d.getAttribute('data-theme');
+  var dark=cur?cur==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;d.setAttribute('data-theme',dark?'light':'dark')};
+/* ---------- live refresh: poll the server and reload data when a CSV changes ---------- */
+function applyData(d){
+  var names=Object.keys(S.prefs).map(function(r){return [r,S.prefs[r].map(function(i){return INST[i]?INST[i].n:null})]});
+  CAND=d.cand;VAC=d.vac;STAMP=d.stamp;STAMPTXT=d.stamptxt;setup();
+  S.prefs={};names.forEach(function(p){S.prefs[p[0]]=p[1].map(function(n){return idxByName[n]}).filter(function(i){return i!==undefined})});
+  renderTop();renderAll();stampUi(true);
+}
+function toast(msg){var t=el('div','toast',msg);t.setAttribute('role','status');document.body.appendChild(t);setTimeout(function(){t.remove()},4000)}
+function stampUi(ok){$('livedot').className=ok?'dot':'dot off';$('livetxt').textContent=ok?'Live':'Offline';$('livestamp').textContent='Data checked '+STAMPTXT}
+function poll(){
+  fetch('?stamp=1&_='+Date.now(),{cache:'no-store'}).then(function(r){return r.text()}).then(function(s){
+    s=s.trim();stampUi(true);
+    if(s&&s!==STAMP){return fetch('?json=1&_='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(d){applyData(d);toast('Data updated: '+d.cand.length.toLocaleString('en-IN')+' candidates, '+d.vac.reduce(function(a,v){return a+v.g},0).toLocaleString('en-IN')+' seats')})}
+  }).catch(function(){stampUi(false)});
+}
+setInterval(poll,30000);
+document.addEventListener('visibilitychange',function(){if(!document.hidden)poll()});
+/* ---------- static hosting: read the CSV files that sit next to this page ---------- */
+var CSV_Q='data/norcet11_stage2_qualified.csv',CSV_V='data/norcet11_vacancies_detailed_updated.csv',LASTQ='',LASTV='';
+function parseCSV(txt){
+  var rows=[],row=[],f='',q=false;txt=txt.replace(/^﻿/,'');
+  for(var i=0;i<txt.length;i++){var c=txt[i];
+    if(q){if(c==='"'){if(txt[i+1]==='"'){f+='"';i++}else q=false}else f+=c}
+    else if(c==='"')q=true;
+    else if(c===','){row.push(f);f=''}
+    else if(c==='\n'||c==='\r'){if(c==='\r'&&txt[i+1]==='\n')i++;row.push(f);f='';if(row.length>1||row[0]!=='')rows.push(row);row=[]}
+    else f+=c}
+  if(f!==''||row.length){row.push(f);rows.push(row)}
+  var h=rows.shift().map(function(x){return x.trim()});
+  return rows.filter(function(r){return r.length===h.length}).map(function(r){var o={};h.forEach(function(k,i){o[k]=r[i]});return o});
+}
+function buildData(qt,vt){
+  var cand=[];
+  parseCSV(qt).forEach(function(r){var k=CATS.indexOf(r.category);if(k<0)return;cand.push([parseInt(r.roll_no,10),k,String(r.pwbd).trim().toUpperCase()==='YES'?1:0,/^female$/i.test(r.gender)?0:1,parseFloat(r.percentage),parseInt(r.rank,10)])});
+  cand.sort(function(a,b){return a[5]-b[5]});
+  var vac=parseCSV(vt).map(function(r){var sp=String(r.gender_split_available).trim().toLowerCase()==='yes';
+    var s=CATS.map(function(c){var t=parseInt(r[c+'_total'],10)||0;return sp?[+r[c+'_female']||0,+r[c+'_male']||0,+r[c+'_female_pwbd']||0,+r[c+'_male_pwbd']||0,t]:[0,0,0,0,t]});
+    return {n:r.institute,split:sp,s:s,g:parseInt(r.grand_total,10)||0,src:r.source||''}});
+  return {cand:cand,vac:vac};
+}
+function stampUi(ok){$('livedot').className=ok?'dot':'dot off';$('livetxt').textContent=ok?'Live':'Offline';$('livestamp').textContent=STAMPTXT?'Data checked '+STAMPTXT:''}
+function loadAll(first){
+  var bust='?v='+Date.now();
+  return Promise.all([
+    fetch(CSV_Q+bust,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error(r.status);return r.text()}),
+    fetch(CSV_V+bust,{cache:'no-store'}).then(function(r){if(!r.ok)throw new Error(r.status);return r.text()})
+  ]).then(function(a){
+    STAMPTXT=new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'});
+    if(a[0]===LASTQ&&a[1]===LASTV){stampUi(true);return}
+    LASTQ=a[0];LASTV=a[1];var d=buildData(a[0],a[1]);
+    if(first){CAND=d.cand;VAC=d.vac;setup();renderTop();renderAll();stampUi(true)}
+    else{applyData({cand:d.cand,vac:d.vac,stamp:'',stamptxt:STAMPTXT});toast('Data updated: '+d.cand.length.toLocaleString('en-IN')+' candidates, '+d.vac.reduce(function(x,v){return x+v.g},0).toLocaleString('en-IN')+' seats')}
+  }).catch(function(){stampUi(false);if(first)$('ov-big').textContent='The data files could not be loaded. Check that the data folder sits next to this page.'});
+}
+function poll(){loadAll(false)}
+loadAll(true);
+
+</script>
+</body>
+</html>

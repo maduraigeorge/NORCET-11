@@ -1,0 +1,29 @@
+institute,UR_female,UR_male,UR_female_pwbd,UR_male_pwbd,UR_total,OBC_female,OBC_male,OBC_female_pwbd,OBC_male_pwbd,OBC_total,SC_female,SC_male,SC_female_pwbd,SC_male_pwbd,SC_total,ST_female,ST_male,ST_female_pwbd,ST_male_pwbd,ST_total,EWS_female,EWS_male,EWS_female_pwbd,EWS_male_pwbd,EWS_total,grand_total,gender_split_available,source
+AIIMS Avantipora,20,5,2,0,27,17,4,1,0,22,9,3,1,0,13,4,1,0,0,5,6,2,0,0,8,75,yes,Notice 103/2026 Annexure-V
+AIIMS Bathinda,8,6,9,3,26,2,0,7,0,9,0,1,3,1,5,0,1,2,0,3,1,0,2,1,4,47,yes,Notice 103/2026 Annexure-V
+AIIMS Bhopal,5,2,22,5,34,2,1,1,0,4,1,0,4,1,6,0,0,1,1,2,1,0,2,1,4,50,yes,"Addendum 38/2026 (final, replaces)"
+AIIMS Bilaspur,19,8,7,2,36,15,6,5,1,27,8,1,3,1,13,4,1,1,0,6,5,0,2,0,7,89,yes,Notice 103/2026 Annexure-V
+AIIMS Bhubaneswar,57,13,1,1,72,53,13,2,0,68,25,6,1,0,32,4,2,1,0,7,13,4,1,0,18,197,yes,Notice 103/2026 Annexure-V
+AIIMS Deoghar,53,20,9,2,84,26,24,6,2,58,26,8,3,1,38,13,5,2,0,20,12,8,2,1,23,223,yes,Notice 103/2026 Annexure-V
+AIIMS Gorakhpur,16,2,8,1,27,2,3,5,0,10,6,1,3,1,11,2,1,2,0,5,5,1,1,1,8,61,yes,Notice 103/2026 Annexure-V
+AIIMS Guwahati,56,22,10,3,91,27,13,5,2,47,14,3,3,0,20,3,5,0,0,8,17,3,2,0,22,188,yes,Notice 103/2026 Annexure-V
+AIIMS Kalyani,6,2,6,2,16,13,6,3,1,23,6,2,1,1,10,1,0,1,0,2,0,1,1,0,2,53,yes,Notice 103/2026 Annexure-V
+AIIMS Mangalagiri,14,1,8,2,25,5,2,3,0,10,2,0,2,0,4,5,0,1,0,6,3,1,2,1,7,52,yes,"Addendum 38/2026 (final, replaces)"
+AIIMS Nagpur,6,3,11,3,23,7,2,3,1,13,1,0,0,0,1,2,1,2,0,5,4,0,1,1,6,48,yes,Notice 103/2026 Annexure-V
+AIIMS Raebareli,25,6,8,2,41,7,2,5,0,14,6,3,3,1,13,0,3,1,1,5,3,4,1,0,8,81,yes,Notice 103/2026 Annexure-V
+AIIMS New Delhi,32,9,3,1,45,33,8,3,0,44,11,3,2,1,17,5,2,0,0,7,6,1,1,0,8,121,yes,Notice 103/2026 Annexure-V
+AIIMS Patna,56,14,4,1,75,46,11,2,1,60,24,6,1,0,31,12,3,1,0,16,14,4,1,0,19,201,yes,Notice 103/2026 Annexure-V
+AIIMS Rishikesh,15,5,4,0,24,23,7,1,0,31,7,3,0,0,10,6,2,0,0,8,11,3,1,0,15,88,yes,Annexure-V + Addendum 37/2026 (treated as ADDITIONAL)
+AIIMS Raipur,29,8,3,0,40,1,0,0,0,1,7,2,0,0,9,4,0,0,0,4,4,2,0,0,6,60,yes,Notice 103/2026 Annexure-V
+AIIMS Vijaypur Jammu,2,0,7,0,9,6,0,4,1,11,0,0,3,1,4,0,0,2,0,2,1,0,2,0,3,29,yes,Notice 103/2026 Annexure-V
+AIIMS Rewari,4,2,0,0,6,2,0,0,0,2,1,0,0,0,1,0,0,0,0,0,1,0,0,0,1,10,yes,Notice 103/2026 Annexure-V
+AIIMS-CAPFIMS Maidangarhi,2,0,0,0,2,0,0,0,0,0,1,1,0,0,2,1,0,0,0,1,0,0,1,0,1,6,yes,Notice 103/2026 Annexure-V
+JIPMER Puducherry,16,3,0,0,19,4,0,0,0,4,3,0,0,0,3,4,1,0,0,5,7,1,0,0,8,39,yes,Notice 103/2026 Annexure-V
+ESIC New Delhi,168,42,0,0,210,112,28,0,0,140,64,16,0,0,80,32,8,0,0,40,42,11,0,0,53,523,yes,Notice 103/2026 Annexure-V
+NITRD,,,,,3,,,,,0,,,,,1,,,,,2,,,,,1,7,no,Notice 103/2026 Annexure-V
+CIP Ranchi,,,,,2,,,,,1,,,,,1,,,,,0,,,,,0,4,no,Notice 103/2026 Annexure-V
+SJH Hospital,,,,,3,,,,,1,,,,,1,,,,,0,,,,,0,5,no,Notice 103/2026 Annexure-V
+RHPT Nazafgarh (RHTC),,,,,17,,,,,9,,,,,5,,,,,2,,,,,3,36,no,Safdarjung corrigendum 18.08.2026
+Dr RML Hospital (ABVIMS),,,,,44,,,,,33,,,,,20,,,,,10,,,,,24,131,no,Safdarjung corrigendum 18.08.2026
+KSCH Hospital,,,,,0,,,,,0,,,,,0,,,,,0,,,,,0,0,no,Addendum 35/2026 (no longer participating)
+AIIMS Madurai,9,1,3,1,14,5,2,0,0,7,3,1,0,0,4,2,0,0,0,2,2,1,0,0,3,30,yes,Addendum 35/2026
